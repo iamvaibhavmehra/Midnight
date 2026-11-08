@@ -1,0 +1,72 @@
+pybullet build time: Nov  7 2026 23:49:47
+0 MidnightBase-Wood_Rigid-1 4
+1 LowerBase_Rigid-2 4
+2 SHF10E_Rigid-4 4
+3 LowerBase_Rigid-3 4
+4 SHF10F_Rigid-6 4
+5 LowerBase_Rigid-7 4
+6 Nema17Model_Revolute-8 0
+7 LeadScrew_Slider-9 1
+8 LeadScrewNut_Rigid-11 4
+9 Arm1-Piece1_Rigid-12 4
+10 MidnightBase-Wood_Rigid-SHF10D 4
+11 SHF10D_Rigid-5 4
+12 MidnightBase-Wood_Rigid-Board 4
+Fusion pose corresponds to slider q=+0.0000 m
+
+Reachable squares (# = fingers can get there):
+     a  b  c  d  e  f  g  h
+  8  #  #  .  .  .  .  #  #
+  7  #  #  .  .  .  .  #  #
+  6  #  #  .  .  .  .  #  #
+  5  #  #  #  #  #  #  #  #
+  4  #  #  #  #  #  #  #  #
+  3  #  #  #  #  #  #  #  #
+  2  .  .  #  #  #  #  .  .
+  1  .  .  .  .  .  .  .  .
+  capture slots the arm can reach: ['L0', 'L1', 'L2', 'L3', 'L4', 'R0', 'R1', 'R2', 'R3', 'R4']
+
+Engine: Stockfish 19. Your move (white): type e.g. e2e4 here, or use the sliders.
+You played e4
+Midnight is thinking...
+Midnight plays a6
+  (10 of 20 legal moves were within the arm's reach; engine took 1.0 s)
+
+a7 -> a6  (P)
+  fingers closed 2.16 cm in total (max 3.0) around the P
+  piece is 7.1 cm above the board -> GRIPPED
+  bystander pieces moved by at most 0.7 mm
+  placed on a6: 3.4 mm from the square centre, tilt 0.0 deg, +0.10 cm above the board
+Midnight played. Your move.
+'that move' is not a legal move - try again.
+'that move' is not a legal move - try again.
+'that move' is not a legal move - try again.
+'that move' is not a legal move - try again.
+starting thread 0
+started testThreads thread 0 with threadHandle 0000000000000288
+argc=2
+argv[0] = --unused
+argv[1] = --start_demo_name=Physics Server
+ExampleBrowserThreadFunc started
+Version = 4.6.0 Compatibility Profile Context 25.20.42.251205
+Vendor = ATI Technologies Inc.
+Renderer = AMD Radeon(TM) 860M Graphics
+b3Printf: Selected demo: Physics Server
+starting thread 0
+started MotionThreads thread 0 with threadHandle 000000000000051C
+MotionThreadFunc thread started
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: MidnightBase-Wood
+numActiveThreads = 0
+stopping threads
+Thread with taskId 0 with handle 000000000000051C exiting
+Thread TERMINATED
+finished
+numActiveThreads = 0
+btShutDownExampleBrowser stopping threads
+Thread with taskId 0 with handle 0000000000000288 exiting
+Thread TERMINATED

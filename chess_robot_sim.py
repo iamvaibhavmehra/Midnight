@@ -42,7 +42,17 @@ GRIP_FORCE = 40.0            # N per finger
 GRIP_SPEED = 0.04            # m/s finger speed
 
 
+# Captured pieces are parked on the wood beside the board: "R0".."R4" (right side, within the arm's
+# reach, used when Midnight captures) and "L0".."L4" (left side, used when the human captures).
+YARD_X_CM = 23.0
+YARD_Y_CM = (-9.0, -4.0, 1.0, 6.0, 11.0)
+YARD_XY = {f"{side}{i}": (sign * YARD_X_CM, y) for side, sign in (("R", 1), ("L", -1))
+           for i, y in enumerate(YARD_Y_CM)}
+
+
 def square_xy_cm(name):
+    if name in YARD_XY:
+        return YARD_XY[name]
     f, r = "abcdefgh".index(name[0]), int(name[1])
     i = (3 - f) if files_mirrored else (f - 4)
     j = r - 5
@@ -141,7 +151,8 @@ def config_over(name, tip_z_cm, current=None, grip=0.0, ignore=()):
 
 
 ALL_SQUARES = [f"{f}{r}" for r in range(1, 9) for f in "abcdefgh"]
-REACHABLE = {s for s in ALL_SQUARES if config_over(s, BOARD_TOP_CM + 1.0) is not None}
+REACHABLE = {s for s in ALL_SQUARES + list(YARD_XY) if config_over(s, BOARD_TOP_CM + 1.0) is not None}
+BOARD_REACHABLE = REACHABLE & set(ALL_SQUARES)
 
 # ----------------------------------------------------------------------------------------
 # Physics set-up
@@ -374,6 +385,7 @@ def print_reach_map():
     print("\nReachable squares (# = fingers can get there):\n     " + "  ".join("abcdefgh"))
     for r in range(8, 0, -1):
         print(f"  {r}  " + "  ".join("#" if f"{f}{r}" in REACHABLE else "." for f in "abcdefgh"))
+    print("  capture slots the arm can reach:", sorted(s for s in REACHABLE if s in YARD_XY))
     print()
 
 
@@ -387,57 +399,67 @@ def self_test():
         tx, ty = square_xy_cm(s)
         worst = max(worst, math.hypot(mx - tx, my - ty))
     p.resetJointState(robot, slider, 0.0); sync_extra_parts((0, 0, 0))
-    print(f"IK check: {len(REACHABLE)}/64 squares reachable, worst fingertip error {worst * 10:.2f} mm")
+    print(f"IK check: {len(BOARD_REACHABLE)}/64 squares reachable, worst fingertip error {worst * 10:.2f} mm")
 
 
-print_reach_map()
-self_test()
-drive(cur)
-wait(1.0)                                   # let the pieces settle on the board
+def settle(seconds=1.0):
+    """Hold still for a moment so the pieces settle on the board."""
+    drive(cur)
+    wait(seconds)
 
-if DIRECT:
-    n_ok = 0
-    for src, dst in DEMO_MOVES:
-        n_ok += bool(pick_and_place(src, dst))
-    print(f"\n{n_ok}/{len(DEMO_MOVES)} moves completed")
-    p.disconnect()
-    sys.exit(0)
 
-if "--no-markers" not in sys.argv:
-    dot = p.createVisualShape(p.GEOM_CYLINDER, radius=0.007, length=0.0006, rgbaColor=(0.1, 0.8, 0.2, 0.7))
-    for s in REACHABLE:
-        x, y = square_xy_cm(s)
-        p.createMultiBody(0, -1, dot, [x / 100, y / 100, BOARD_TOP_CM / 100 + 0.0007])
+def _demo_main():
+    print_reach_map()
+    self_test()
+    settle()
 
-p.resetDebugVisualizerCamera(0.95, 15, -38, [0, -0.08, 0.12])
-ui_auto = p.addUserDebugParameter("Auto moves (1=play demo once)", 0, 1, 1)
-ui_f1 = p.addUserDebugParameter("From file (0=a..7=h)", 0, 7, 4)
-ui_r1 = p.addUserDebugParameter("From rank (1..8)", 1, 8, 2)
-ui_f2 = p.addUserDebugParameter("To file (0=a..7=h)", 0, 7, 4)
-ui_r2 = p.addUserDebugParameter("To rank (1..8)", 1, 8, 4)
-ui_go = p.addUserDebugParameter("Move piece", 1, 0, 0)       # min > max makes it a button
-ui_reset = p.addUserDebugParameter("Reset board", 1, 0, 0)
-last_go, last_reset = p.readUserDebugParameter(ui_go), p.readUserDebugParameter(ui_reset)
-
-sq = lambda f, r: "abcdefgh"[int(round(p.readUserDebugParameter(f)))] + str(int(round(p.readUserDebugParameter(r))))
-played = False
-while p.isConnected():
-    if not played and p.readUserDebugParameter(ui_auto) > 0.5:
+    if DIRECT:
+        n_ok = 0
         for src, dst in DEMO_MOVES:
-            if not p.isConnected():
-                break
-            pick_and_place(src, dst)
-        played = True
-    go, rs = p.readUserDebugParameter(ui_go), p.readUserDebugParameter(ui_reset)
-    if rs != last_reset:
-        last_reset = rs
-        reset_board(); played = p.readUserDebugParameter(ui_auto) <= 0.5
-    elif go != last_go:
-        last_go = go
-        pick_and_place(sq(ui_f1, ui_r1), sq(ui_f2, ui_r2))
-    else:
-        drive(cur)
-        _tick()
+            n_ok += bool(pick_and_place(src, dst))
+        print(f"\n{n_ok}/{len(DEMO_MOVES)} moves completed")
+        p.disconnect()
+        sys.exit(0)
 
-if p.isConnected():
-    p.disconnect()
+    if "--no-markers" not in sys.argv:
+        dot = p.createVisualShape(p.GEOM_CYLINDER, radius=0.007, length=0.0006, rgbaColor=(0.1, 0.8, 0.2, 0.7))
+        for s in REACHABLE:
+            x, y = square_xy_cm(s)
+            p.createMultiBody(0, -1, dot, [x / 100, y / 100, BOARD_TOP_CM / 100 + 0.0007])
+
+    p.resetDebugVisualizerCamera(0.95, 15, -38, [0, -0.08, 0.12])
+    ui_auto = p.addUserDebugParameter("Auto moves (1=play demo once)", 0, 1, 1)
+    ui_f1 = p.addUserDebugParameter("From file (0=a..7=h)", 0, 7, 4)
+    ui_r1 = p.addUserDebugParameter("From rank (1..8)", 1, 8, 2)
+    ui_f2 = p.addUserDebugParameter("To file (0=a..7=h)", 0, 7, 4)
+    ui_r2 = p.addUserDebugParameter("To rank (1..8)", 1, 8, 4)
+    ui_go = p.addUserDebugParameter("Move piece", 1, 0, 0)       # min > max makes it a button
+    ui_reset = p.addUserDebugParameter("Reset board", 1, 0, 0)
+    last_go, last_reset = p.readUserDebugParameter(ui_go), p.readUserDebugParameter(ui_reset)
+
+    sq = lambda f, r: "abcdefgh"[int(round(p.readUserDebugParameter(f)))] + str(int(round(p.readUserDebugParameter(r))))
+    played = False
+    while p.isConnected():
+        if not played and p.readUserDebugParameter(ui_auto) > 0.5:
+            for src, dst in DEMO_MOVES:
+                if not p.isConnected():
+                    break
+                pick_and_place(src, dst)
+            played = True
+        go, rs = p.readUserDebugParameter(ui_go), p.readUserDebugParameter(ui_reset)
+        if rs != last_reset:
+            last_reset = rs
+            reset_board(); played = p.readUserDebugParameter(ui_auto) <= 0.5
+        elif go != last_go:
+            last_go = go
+            pick_and_place(sq(ui_f1, ui_r1), sq(ui_f2, ui_r2))
+        else:
+            drive(cur)
+            _tick()
+
+    if p.isConnected():
+        p.disconnect()
+
+
+if __name__ == "__main__":
+    _demo_main()
