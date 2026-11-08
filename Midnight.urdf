@@ -1,0 +1,308 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="Midnight">
+    <link name="LowerBase">
+        <inertial>
+            <origin xyz="0.08147568967992726 -0.08136372289067957 -0.005151942905948175" rpy="0.0 -0.0 0.0" />
+            <mass value="2.3080511770360643" />
+            <inertia ixx="0.005950362778940191" iyy="0.00594918320647588" izz="0.011807509061148094" ixy="9.534102561606703e-07" iyz="7.714172974866013e-07" ixz="1.463276484785933e-06" />
+        </inertial>
+        <visual name="LowerBase_visual">
+            <origin xyz="0.08140375000000473 -0.08140151999999962 -0.008999999999999958" rpy="-3.141592653589793 -9.164029996048199e-25 1.5707963267948966" />
+            <geometry>
+                <mesh filename="meshes/LowerBase.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="LowerBase_collision">
+            <origin xyz="0.08140375000000473 -0.08140151999999962 -0.008999999999999958" rpy="-3.141592653589793 -9.164029996048199e-25 1.5707963267948966" />
+            <geometry>
+                <mesh filename="meshes/LowerBase.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="SHF10D">
+        <inertial>
+            <origin xyz="-0.00014732309623365983 0.012436513977015697 4.436451176584432e-15" rpy="0.0 0.0 0.0" />
+            <mass value="0.06685638565719092" />
+            <inertia ixx="7.858500329391116e-06" iyy="6.130639649220256e-06" izz="1.1670723992972424e-05" ixy="1.5329239587103087e-07" iyz="-1.9081958204517662e-17" ixz="-4.560266395310083e-18" />
+        </inertial>
+        <visual name="SHF10D_visual">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <geometry>
+                <mesh filename="meshes/SHF10D.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="SHF10D_collision">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <geometry>
+                <mesh filename="meshes/SHF10D.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="SHF10E">
+        <inertial>
+            <origin xyz="-0.012436511451356758 -4.440892098500626e-15 0.0158526775125884" rpy="0.0 -0.0 0.0" />
+            <mass value="0.06685638565719092" />
+            <inertia ixx="6.130639649220698e-06" iyy="1.1670723992972861e-05" izz="7.858500329391018e-06" ixy="-1.9141228688219427e-17" iyz="4.6037600495166446e-18" ixz="-1.5329239587126817e-07" />
+        </inertial>
+        <visual name="SHF10E_visual">
+            <origin xyz="2.52565895308976e-09 -4.440892098500626e-18 0.01600000060882209" rpy="1.5707963267948966 -1.5707963267948915 0" />
+            <geometry>
+                <mesh filename="meshes/SHF10E.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="SHF10E_collision">
+            <origin xyz="2.52565895308976e-09 -4.440892098500626e-18 0.01600000060882209" rpy="1.5707963267948966 -1.5707963267948915 0" />
+            <geometry>
+                <mesh filename="meshes/SHF10E.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="SHF10F">
+        <inertial>
+            <origin xyz="0.012436512554474382 4.405364961712621e-15 -0.0161473243419411" rpy="0.0 -0.0 0.0" />
+            <mass value="0.06685638565719092" />
+            <inertia ixx="6.130639649219727e-06" iyy="1.1670723992972427e-05" izz="7.858500329390848e-06" ixy="-1.9146885352010706e-17" iyz="-4.59465099138577e-18" ixz="1.532923958712038e-07" />
+        </inertial>
+        <visual name="SHF10F_visual">
+            <origin xyz="-1.422541329176852e-09 -3.1086244689504386e-17 -0.01600000124570741" rpy="-1.5707963267948966 -1.570796326794895 0" />
+            <geometry>
+                <mesh filename="meshes/SHF10F.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="SHF10F_collision">
+            <origin xyz="-1.422541329176852e-09 -3.1086244689504386e-17 -0.01600000124570741" rpy="-1.5707963267948966 -1.570796326794895 0" />
+            <geometry>
+                <mesh filename="meshes/SHF10F.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="Rod_Z1">
+        <inertial>
+            <origin xyz="-3.807185100512811e-09 -1.7493641379928703e-09 -0.25000000000000006" rpy="0.0 -0.0 0.0" />
+            <mass value="0.3082687791334984" />
+            <inertia ixx="0.006424192911817457" iyy="0.0064241929118174675" izz="3.853359739168852e-06" ixy="-1.6576569512492793e-18" iyz="3.9600773820267294e-35" ixz="8.673617379884037e-19" />
+        </inertial>
+        <visual name="Rod_Z1_visual">
+            <origin xyz="-3.807185096071919e-09 -1.7493641735200071e-09 -1.7763568394002505e-17" rpy="-3.141592653589793 6.123143211019122e-17 -0.5235987755983015" />
+            <geometry>
+                <mesh filename="meshes/Rod_Z1.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="Rod_Z1_collision">
+            <origin xyz="-3.807185096071919e-09 -1.7493641735200071e-09 -1.7763568394002505e-17" rpy="-3.141592653589793 6.123143211019122e-17 -0.5235987755983015" />
+            <geometry>
+                <mesh filename="meshes/Rod_Z1.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="Rod_Z2">
+        <inertial>
+            <origin xyz="-6.368824163196867e-10 -1.7493639603571864e-09 -0.24999999999999994" rpy="0.0 -0.0 0.0" />
+            <mass value="0.3082687791334984" />
+            <inertia ixx="0.006424192911817464" iyy="0.006424192911817478" izz="3.853359739167117e-06" ixy="-8.27406702197357e-45" iyz="3.469446951953614e-18" ixz="1.5465681871719748e-37" />
+        </inertial>
+        <visual name="Rod_Z2_visual">
+            <origin xyz="-6.368824163196867e-10 -1.7493639603571864e-09 7.993605777301127e-17" rpy="-3.141592653589793 1.0400533796576025e-76 2.383578030884403e-16" />
+            <geometry>
+                <mesh filename="meshes/Rod_Z2.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="Rod_Z2_collision">
+            <origin xyz="-6.368824163196867e-10 -1.7493639603571864e-09 7.993605777301127e-17" rpy="-3.141592653589793 1.0400533796576025e-76 2.383578030884403e-16" />
+            <geometry>
+                <mesh filename="meshes/Rod_Z2.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="Rod_Z3">
+        <inertial>
+            <origin xyz="2.533414362737574e-09 -1.7493639603571864e-09 -0.24999999999999994" rpy="0.0 -0.0 -5.62668058736151e-114" />
+            <mass value="0.3082687791334984" />
+            <inertia ixx="0.006424192911817478" iyy="0.006424192911817481" izz="3.8533597391705865e-06" ixy="1.3010426069826053e-18" iyz="-3.469446951953614e-18" ixz="8.673617379884035e-19" />
+        </inertial>
+        <visual name="Rod_Z3_visual">
+            <origin xyz="2.533414367178466e-09 -1.7493639603571864e-09 4.4408920985006264e-17" rpy="-3.141592653589793 -9.078471767112124e-22 0.5235987755982986" />
+            <geometry>
+                <mesh filename="meshes/Rod_Z3.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="Rod_Z3_collision">
+            <origin xyz="2.533414367178466e-09 -1.7493639603571864e-09 4.4408920985006264e-17" rpy="-3.141592653589793 -9.078471767112124e-22 0.5235987755982986" />
+            <geometry>
+                <mesh filename="meshes/Rod_Z3.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="Nema17Model">
+        <inertial>
+            <origin xyz="-0.000117354469181822 6.790928814158548e-05 0.01894109083311926" rpy="0.0 -0.0 0.0" />
+            <mass value="0.48879467034854424" />
+            <inertia ixx="0.0001263473999396289" iyy="0.0001271144910406771" izz="0.00013079171443647342" ixy="6.577477243978967e-07" iyz="5.526090981573459e-07" ixz="-9.653905590862303e-07" />
+        </inertial>
+        <visual name="Nema17Model_visual">
+            <origin xyz="-6.36885335930041e-10 1.74936403141146e-09 -2.6645352591003756e-17" rpy="-4.582015059653859e-25 7.936282884366223e-25 1.0471975511965979" />
+            <geometry>
+                <mesh filename="meshes/Nema17Model.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="Nema17Model_collision">
+            <origin xyz="-6.36885335930041e-10 1.74936403141146e-09 -2.6645352591003756e-17" rpy="-4.582015059653859e-25 7.936282884366223e-25 1.0471975511965979" />
+            <geometry>
+                <mesh filename="meshes/Nema17Model.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="LeadScrew">
+        <inertial>
+            <origin xyz="-2.0100000000000002e-06 -0.21250201000000002 -0.0864" rpy="0.0 -0.0 -8.433758354584419e-81" />
+            <mass value="0.0" />
+            <inertia ixx="0.0" iyy="0.0" izz="0.0" ixy="0.0" iyz="0.0" ixz="0.0" />
+        </inertial>
+        <visual name="LeadScrew_visual">
+            <origin xyz="-6.36885335930041e-10 1.74936403141146e-09 0.21500000000000014" rpy="-1.5707963267948966 -4.582015059653856e-25 -0.5235987755982987" />
+            <geometry>
+                <mesh filename="meshes/LeadScrew.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="LeadScrew_collision">
+            <origin xyz="-6.36885335930041e-10 1.74936403141146e-09 0.21500000000000014" rpy="-1.5707963267948966 -4.582015059653856e-25 -0.5235987755982987" />
+            <geometry>
+                <mesh filename="meshes/LeadScrew.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="LeadScrewNut">
+        <inertial>
+            <origin xyz="-8.865087254586676e-07 -0.1645869718741605 1.8598939803382565e-07" rpy="0.0 -5.0978941156238473e-57 0.0" />
+            <mass value="0.011769952647612249" />
+            <inertia ixx="4.5600301208995053e-07" iyy="5.928423361596961e-07" izz="4.5504817224734095e-07" ixy="-6.244812783622197e-11" iyz="-1.1681866411705766e-12" ixz="9.161424392923149e-10" />
+        </inertial>
+        <visual name="LeadScrewNut_visual">
+            <origin xyz="-6.368853362075967e-10 -0.1644999999999999 -1.74936403141146e-09" rpy="-1.0581716995885165e-24 -0.5235987755982988 5.551115176034298e-17" />
+            <geometry>
+                <mesh filename="meshes/LeadScrewNut.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="LeadScrewNut_collision">
+            <origin xyz="-6.368853362075967e-10 -0.1644999999999999 -1.74936403141146e-09" rpy="-1.0581716995885165e-24 -0.5235987755982988 5.551115176034298e-17" />
+            <geometry>
+                <mesh filename="meshes/LeadScrewNut.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="Arm1-Piece1">
+        <inertial>
+            <origin xyz="4.0257250734965665e-05 -0.01746821074743565 -0.006144777189445385" rpy="0.0 -5.097894115623848e-57 0.0" />
+            <mass value="1.836374931461854" />
+            <inertia ixx="0.005052961990444582" iyy="0.00930378402622177" izz="0.0050343573480212105" ixy="2.1288705668570704e-07" iyz="7.498636579683636e-05" ixz="5.001230649482781e-06" />
+        </inertial>
+        <visual name="Arm1-Piece1_visual">
+            <origin xyz="-6.368854221113743e-10 0.3175206565856935 1.7493641379928703e-09" rpy="1.5707963267948966 1.5707963267948963 0" />
+            <geometry>
+                <mesh filename="meshes/Arm1-Piece1.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="Arm1-Piece1_collision">
+            <origin xyz="-6.368854221113743e-10 0.3175206565856935 1.7493641379928703e-09" rpy="1.5707963267948966 1.5707963267948963 0" />
+            <geometry>
+                <mesh filename="meshes/Arm1-Piece1.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="MidnightFusion_Arm1Piece2">
+        <inertial>
+            <origin xyz="-0.022494668480511636 -0.07448718417277242 -0.04413894177654926" rpy="4.100266178934991e-143 -0.0 0.0" />
+            <mass value="1.6023773869965832" />
+            <inertia ixx="0.0063495756955756315" iyy="0.0030080447672233557" izz="0.0039893266014118245" ixy="9.97785510415336e-05" iyz="2.7421518632015678e-06" ixz="-1.1402556231119036e-06" />
+        </inertial>
+        <visual name="MidnightFusion_Arm1Piece2_visual">
+            <origin xyz="-0.3582706565856935 0.09000000174936477 -0.04442263936311355" rpy="-1.5707963267948966 1.1018963519404674e-14 -1.5707963267948966" />
+            <geometry>
+                <mesh filename="meshes/MidnightFusion_Arm1Piece2.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="MidnightFusion_Arm1Piece2_collision">
+            <origin xyz="-0.3582706565856935 0.09000000174936477 -0.04442263936311355" rpy="-1.5707963267948966 1.1018963519404674e-14 -1.5707963267948966" />
+            <geometry>
+                <mesh filename="meshes/MidnightFusion_Arm1Piece2.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="Chess-Board">
+        <inertial>
+            <origin xyz="4.4988855449786064e-18 -1.769616199607883e-17 -0.0012142857142857142" rpy="0.0 0.0 0.0" />
+            <mass value="3.9673899999999995" />
+            <inertia ixx="0.04774546724059519" iyy="0.047745467240595196" izz="0.09548185266666656" ixy="-0.0003196937031249965" iyz="-9.15178234643453e-19" ixz="1.568147516605654e-19" />
+        </inertial>
+        <visual name="Chess-Board_visual">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <geometry>
+                <mesh filename="meshes/Chess-Board.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="Chess-Board_collision">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <geometry>
+                <mesh filename="meshes/Chess-Board.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="MidnightBase-Wood_Rigid-1" type="fixed">
+        <origin xyz="-0.08140375000000001 0.13109848 0.018000000000000002" rpy="3.141592653589793 -0.0 0.0" />
+        <parent link="MidnightBase-Wood" />
+        <child link="LowerBase" />
+    </joint>
+    <joint name="LowerBase_Rigid-2" type="fixed">
+        <origin xyz="0.01711411000000001 -0.06275994000000001 -0.016" rpy="1.5707963267948966 -1.5906374528393744e-40 2.6179938779914966" />
+        <parent link="LowerBase" />
+        <child link="SHF10E" />
+    </joint>
+    <joint name="LowerBase_Rigid-3" type="fixed">
+        <origin xyz="0.14569741 -0.06275994000000001 -0.016" rpy="-1.5707963267948966 -1.5906374528393707e-40 -2.617993877991493" />
+        <parent link="LowerBase" />
+        <child link="SHF10F" />
+    </joint>
+    <joint name="SHF10E_Rigid-4" type="fixed">
+        <origin xyz="-0.019999999896777948 0.0069999999999999975 0.01600000402740829" rpy="1.5707963267948966 -0.5235987755982964 3.141592653589793" />
+        <parent link="SHF10E" />
+        <child link="Rod_Z1" />
+    </joint>
+    <joint name="SHF10D_Rigid-5" type="fixed">
+        <origin xyz="-6.368824163196867e-10 0.020000001749364102 -0.006999999999999953" rpy="3.141592653589793 1.219727444046193e-19 -3.1415926535897927" />
+        <parent link="SHF10D" />
+        <child link="Rod_Z2" />
+    </joint>
+    <joint name="SHF10F_Rigid-6" type="fixed">
+        <origin xyz="0.019999999896777892 -0.0069999999999999975 -0.016000004027408393" rpy="-1.5707963267948966 -0.5235987755983003 3.141592653589793" />
+        <parent link="SHF10F" />
+        <child link="Rod_Z3" />
+    </joint>
+    <joint name="LowerBase_Rigid-7" type="fixed">
+        <origin xyz="0.08140576000000001 -0.08140353000000002 -0.007499999999999998" rpy="3.141592653589793 1.8367099231598242e-40 1.232595164407831e-32" />
+        <parent link="LowerBase" />
+        <child link="Nema17Model" />
+    </joint>
+    <joint name="Nema17Model_Revolute-8" type="continuous">
+        <origin xyz="0.0 0.0 0.06090000000000001" rpy="-9.183549615799121e-41 9.183549615799121e-41 1.232595164407831e-32" />
+        <parent link="Nema17Model" />
+        <child link="LeadScrew" />
+        <axis xyz="9.183549615799121e-41 -9.183549615799121e-41 1.0" />
+    </joint>
+    <joint name="LeadScrew_Slider-9" type="prismatic">
+        <origin xyz="0.0 0.0 0.45" rpy="1.5707963267948966 5.551115123125783e-17 9.183549579434953e-41" />
+        <parent link="LeadScrew" />
+        <child link="LeadScrewNut" />
+        <axis xyz="-5.551115123125783e-17 1.0 -9.183549615799121e-41" />
+        <limit lower="-0.25" upper="0.12" effort="1000000" velocity="1000000" />
+    </joint>
+    <joint name="LeadScrewNut_Rigid-11" type="fixed">
+        <origin xyz="0.0 -0.161 0.0" rpy="3.141592653589793 -1.8367099231598242e-40 1.1102230246251565e-16" />
+        <parent link="LeadScrewNut" />
+        <child link="Arm1-Piece1" />
+    </joint>
+    <joint name="Arm1-Piece1_Rigid-12" type="fixed">
+        <origin xyz="-0.04442264 -0.04075000000000003 -0.09" rpy="1.5707963267948966 -9.183549615799127e-41 -1.5707963267948966" />
+        <parent link="Arm1-Piece1" />
+        <child link="MidnightFusion_Arm1Piece2" />
+    </joint>
+</robot>
