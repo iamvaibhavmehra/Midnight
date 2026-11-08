@@ -14,6 +14,11 @@ import pybullet as p
 import pybullet_data
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# MIDNIGHT_PHYSICS=1 (set by chess_robot_sim.py): chess pieces become dynamic rigid bodies and the
+# gripper housing / fingers are left out of the visual-only arm parts (they are built as a real
+# physical gripper by the caller).
+PHYSICS = bool(os.environ.get("MIDNIGHT_PHYSICS"))
+PHYSICAL_PARTS = ("GripperHousing", "RackA", "RackB")
 DIRECT = "--direct" in sys.argv  # headless check: python hello_bullet.py --direct
 
 p.connect(p.DIRECT if DIRECT else p.GUI)
@@ -106,7 +111,26 @@ for i, j in cells:
 # --- Chess pieces ---
 # No piece models exist in the CAD, so build simple turned-style pieces from primitives.
 # Sizes in cm for a 4.75 cm square. Each primitive: (kind, params, (x, y, z) offset, optional rpy).
+PIECE_RADIAL_SCALE = float(os.environ.get("MIDNIGHT_PIECE_SCALE", "0.7"))
+# Radii are scaled (heights are not) so the pieces fit between the 5 cm wide gripper jaws without
+# touching their neighbours on the 4.75 cm squares.
+
+
 def _piece_shapes(kind):
+    """Primitives for one piece with every radius / footprint scaled by PIECE_RADIAL_SCALE."""
+    k = PIECE_RADIAL_SCALE
+    out = []
+    for shp in _piece_shapes_raw(kind):
+        t, prm, (ox, oy, oz) = shp[0], shp[1], shp[2]
+        if t in ("cyl", "sph"):
+            prm = (prm[0] * k,) + tuple(prm[1:])
+        else:
+            prm = (prm[0] * k, prm[1] * k, prm[2])
+        out.append((t, prm, (ox * k, oy * k, oz)) + tuple(shp[3:]))
+    return out
+
+
+def _piece_shapes_raw(kind):
     cyl = lambda r, h, z, x=0, y=0: ("cyl", (r, h), (x, y, z + h / 2))
     sph = lambda r, z, x=0, y=0: ("sph", (r,), (x, y, z))
     box = lambda sx, sy, sz, z, x=0, y=0, rpy=(0, 0, 0): ("box", (sx, sy, sz), (x, y, z + sz / 2), rpy)
@@ -130,7 +154,41 @@ def _piece_shapes(kind):
                        box(0.4, 0.4, 1.4, 4.1), box(1.1, 0.4, 0.4, 4.6)]
     raise ValueError(kind)
 
+PIECE_MASS = 0.03          # kg
+PIECE_COM_HEIGHT = 0.014   # m above the base
+
+
+def _make_piece_physical(kind, rgba, x, y, z, yaw):
+    """Same shapes as make_piece, but as one dynamic rigid body with a compound collision shape."""
+    types, radii, halves, lengths, positions, orns = [], [], [], [], [], []
+    for shp in _piece_shapes(kind):
+        t, prm, off = shp[0], shp[1], [v / 100.0 for v in shp[2]]
+        orn = list(p.getQuaternionFromEuler(shp[3])) if len(shp) > 3 else [0, 0, 0, 1]
+        if t == "cyl":
+            types.append(p.GEOM_CYLINDER); radii.append(prm[0] / 100); lengths.append(prm[1] / 100)
+            halves.append([0, 0, 0])
+        elif t == "sph":
+            types.append(p.GEOM_SPHERE); radii.append(prm[0] / 100); lengths.append(0)
+            halves.append([0, 0, 0])
+        else:
+            types.append(p.GEOM_BOX); radii.append(0.01); lengths.append(0)
+            halves.append([v / 200 for v in prm])
+        positions.append(off); orns.append(orn)
+    col = p.createCollisionShapeArray(shapeTypes=types, radii=radii, halfExtents=halves, lengths=lengths,
+                                      collisionFramePositions=positions, collisionFrameOrientations=orns)
+    vis = p.createVisualShapeArray(shapeTypes=types, radii=radii, halfExtents=halves, lengths=lengths,
+                                   visualFramePositions=positions, visualFrameOrientations=orns)
+    body = p.createMultiBody(PIECE_MASS, col, vis, [x, y, z + 0.0002], p.getQuaternionFromEuler([0, 0, yaw]),
+                             baseInertialFramePosition=[0, 0, PIECE_COM_HEIGHT])
+    p.changeVisualShape(body, -1, rgbaColor=rgba)
+    p.changeDynamics(body, -1, lateralFriction=1.2, spinningFriction=0.003, rollingFriction=0.0008,
+                     restitution=0.0, linearDamping=0.05, angularDamping=0.05)
+    return body
+
+
 def make_piece(kind, rgba, x, y, z, yaw=0.0):
+    if PHYSICS:
+        return _make_piece_physical(kind, rgba, x, y, z, yaw)
     vis = []
     for shp in _piece_shapes(kind):
         t, prm, off = shp[0], shp[1], [v / 100.0 for v in shp[2]]
@@ -158,13 +216,15 @@ files_mirrored = (-4, -4) not in set(cells)
 WHITE, BLACK = (0.93, 0.89, 0.78, 1), (0.16, 0.11, 0.09, 1)
 board_top = BOARD_ORIGIN[2] + ztop
 back_rank = "RNBQKBNR"
+piece_bodies = {}   # (kind, color, file index) -> body id (pawns share a key per file and colour)
 for color, rgba, rank_back, rank_pawn, step, yaw in (
         ("white", WHITE, -4, -3, 1, 0.0), ("black", BLACK, 3, 2, -1, math.pi)):
     for f in range(8):
         i = (3 - f) if files_mirrored else (f - 4)        # file index -> board column
         x = BOARD_ORIGIN[0] + (i + 0.5) * cell
         for kind, j in ((back_rank[f], rank_back), ("P", rank_pawn)):
-            make_piece(kind, rgba, x, BOARD_ORIGIN[1] + (j + 0.5) * cell, board_top, yaw)
+            piece_bodies[(kind, color, f)] = make_piece(
+                kind, rgba, x, BOARD_ORIGIN[1] + (j + 0.5) * cell, board_top, yaw)
 
 # Find the joint that moves the arm up/down (the lead-screw nut slider).
 slider = None
@@ -270,11 +330,17 @@ for name, spec in EXTRA_ARM_PARTS.items():
     pos = [v / 100.0 for v in t_cm]
     orn = p.multiplyTransforms([0, 0, 0], p.getQuaternionFromEuler([0, 0, math.radians(yaw_deg)]),
                                [0, 0, 0], p.getQuaternionFromEuler([math.radians(roll_deg), 0, 0]))[1]
+    if PHYSICS and name in PHYSICAL_PARTS:
+        extra_parts.append((name, None, (pos, orn)))        # pose only; the caller builds the real body
+        continue
     vis = p.createVisualShape(p.GEOM_MESH, fileName=os.path.join(HERE, "meshes", name + ".stl"),
                               meshScale=[0.001] * 3, rgbaColor=_rgba(EXTRA_COLORS.get(name, (0, 0, 0))))
     extra_parts.append((name, p.createMultiBody(0, -1, vis, pos, orn), (pos, orn)))
 
 _PART_LEVEL = {n: i for i, jt in enumerate(JOINTS) for n in jt["parts"]}   # joint index per part
+
+part_pose = {}   # name -> world pose last computed by sync_extra_parts (also for pose-only parts)
+
 
 def _about_pivot(pivot, angle):
     """Pose of a rotation by `angle` (rad, about +Z) around a vertical axis through `pivot`."""
@@ -297,5 +363,7 @@ def sync_extra_parts(angles_deg=(0.0, 0.0, 0.0), grip_cm=0.0):
             dx, dy = RACK_CLOSE_DIR[name]
             wp = [wp[0] + dx * grip, wp[1] + dy * grip, wp[2]]
         pos, orn = p.multiplyTransforms(*chain[_PART_LEVEL.get(name, -1) + 1], wp, wo)
-        p.resetBasePositionAndOrientation(body, pos, orn)
+        part_pose[name] = (pos, orn)
+        if body is not None:
+            p.resetBasePositionAndOrientation(body, pos, orn)
 
