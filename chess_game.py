@@ -45,6 +45,10 @@ ap.add_argument("--direct", action="store_true", help="headless; both sides play
 ap.add_argument("--plies", type=int, default=12, help="with --direct: how many half-moves to play")
 ap.add_argument("--seed", type=int, default=1)
 args, _ = ap.parse_known_args()
+if not math.isfinite(args.movetime) or args.movetime <= 0:
+    ap.error("--movetime must be a positive finite number")
+if args.plies < 0:
+    ap.error("--plies must be nonnegative")
 
 import chess_robot_sim as sim            # builds the physics scene (reads --direct from sys.argv)
 from chess_robot_sim import p            # noqa: E402  (PyBullet)
@@ -61,7 +65,10 @@ class RandomEngine:
     name = "random mover (stub)"
 
     def choose(self, board, root_moves=None):
-        return random.choice(list(root_moves) if root_moves else list(board.legal_moves))
+        moves = list(board.legal_moves if root_moves is None else root_moves)
+        if not moves:
+            raise ValueError("No legal moves available")
+        return random.choice(moves)
 
     def close(self):
         pass
@@ -85,7 +92,9 @@ class UciEngine:
 
     def choose(self, board, root_moves=None):
         res = self.engine.play(board, chess.engine.Limit(time=self.movetime),
-                               root_moves=list(root_moves) if root_moves else None)
+                               root_moves=list(root_moves) if root_moves is not None else None)
+        if res.move is None or res.move not in board.legal_moves:
+            raise RuntimeError("Engine did not return a legal move")
         return res.move
 
     def close(self):
@@ -141,10 +150,11 @@ def resync():
     """After a robot move: any piece that is not where the game thinks it is gets put back."""
     fixed = []
     for name, body in sim.piece_at.items():
-        (px, py, pz), _ = p.getBasePositionAndOrientation(body)
+        (px, py, pz), orn = p.getBasePositionAndOrientation(body)
         x, y = sim.square_xy_cm(name)
         err_mm = math.hypot(px * 100 - x, py * 100 - y) * 10
-        if err_mm > 9.0 or pz < sim.board_top:
+        tilt = math.degrees(2 * math.asin(min(1.0, math.hypot(orn[0], orn[1]))))
+        if err_mm > 9.0 or abs(pz - resting_com_z()) > 0.01 or tilt > 10:
             snap_to(body, name)
             fixed.append(f"{name} (was {err_mm:.0f} mm off)")
     if fixed:
@@ -233,11 +243,24 @@ def robot_execute(move):
     """Carry the move out with the arm (captured piece first goes to a slot beside the board)."""
     frm, to = sq_name(move.from_square), sq_name(move.to_square)
     cap = captured_square(move)
+    # Save bookkeeping before attempting physics: a failed grasp can leave the
+    # source unmoved, or a capture half finished. Restore before hand recovery.
+    positions = dict(sim.piece_at)
+    slots = list(yard_free["R"])
     ok = True
     if cap is not None:
         slot = yard_free["R"].pop(0)
-        ok &= bool(sim.pick_and_place(cap, slot))
-    ok &= bool(sim.pick_and_place(frm, to))
+        ok = bool(sim.pick_and_place(cap, slot))
+    if ok:
+        ok = bool(sim.pick_and_place(frm, to))
+    sim.set_grip(0.0)
+    if not ok:
+        sim.piece_at.clear()
+        sim.piece_at.update(positions)
+        yard_free["R"] = slots
+        for name, body in positions.items():
+            snap_to(body, name)
+        apply_move_by_hand(move, "R")
     resync()
     return ok
 
@@ -288,6 +311,8 @@ def describe_outcome():
 
 
 def robot_turn(engine):
+    if board.is_game_over():
+        return
     status("Midnight is thinking...")
     doable = [m for m in board.legal_moves if robot_can_do(m)]
     t0 = time.time()
@@ -304,13 +329,15 @@ def robot_turn(engine):
           f"engine took {time.time() - t0:.1f} s)")
     if by_arm:
         if not robot_execute(move):
-            print("  the move did not go perfectly - the board was tidied up")
+            print("  arm movement failed - completed the move by hand")
     else:
         apply_move_by_hand(move, "R")
     board.push(move)
 
 
 def human_turn_apply(move):
+    if move not in board.legal_moves:
+        raise ValueError("Illegal move")
     san = board.san(move)
     apply_move_by_hand(move, "L")
     board.push(move)
@@ -357,7 +384,9 @@ def new_game():
     global board, status_id
     board = chess.Board()
     for b in promoted_bodies:
-        p.resetBasePositionAndOrientation(b, [0.8, 0.8, 0.1], [0, 0, 0, 1])
+        p.removeBody(b)
+        sim.piece_kind.pop(b, None)
+        upright.pop(b, None)
     promoted_bodies.clear()
     sim.reset_board()
     yard_free["R"] = [f"R{i}" for i in range(5)]
@@ -387,7 +416,7 @@ def run_direct(engine):
         bad = verify_sync()
         print("  sync check:", "OK" if not bad else bad)
         if bad:
-            break
+            raise RuntimeError("Board/simulation mismatch: " + "; ".join(bad))
     print(f"\nmoves by the arm: {arm_moves}, moves by hand: {hand_moves}")
     print(board)
     out = describe_outcome()
@@ -412,6 +441,16 @@ def run_gui(engine):
                                           "Your move (white): type e.g. e2e4 here, or use the sliders."))
     announced = False
     while p.isConnected():
+        # Commands remain usable during game-over as well as on the human turn.
+        try:
+            pending = typed.get_nowait()
+        except queue.Empty:
+            pending = None
+        if pending and pending.lower() in ("quit", "exit", "q"):
+            break
+        if pending and pending.lower() == "new":
+            new_game(); announced = False
+            continue
         if p.readUserDebugParameter(ui["new"]) != last["new"]:
             last["new"] = p.readUserDebugParameter(ui["new"])
             new_game(); announced = False
@@ -432,10 +471,7 @@ def run_gui(engine):
                 last["go"] = p.readUserDebugParameter(ui["go"])
                 move, text = read_move_from_ui(ui), "that move"
             else:
-                try:
-                    text = typed.get_nowait()
-                except queue.Empty:
-                    text = None
+                text = pending
                 if text:
                     if text.lower() in ("quit", "exit", "q"):
                         break
